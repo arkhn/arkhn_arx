@@ -13,7 +13,8 @@ an_tool = Anonymizer(df, config_dict, url)
 
 an_df, metrics = an_tool.anonymize_dataset()
 
-os.mkdir("results")
+if not os.path.exists("results"):
+    os.mkdir("results")
 
 an_df.to_csv("results/anonymized_df.csv")
-metrics.to_csv("risk_metrics.csv")
+metrics.to_csv("results/risk_metrics.csv")

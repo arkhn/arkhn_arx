@@ -54,7 +54,6 @@ class Anonymizer:
             dataset = self.create_dataset(self.df)
             dataset = self.define_attribute_type(dataset)
             dataset = self.define_hierarchies(dataset)
-            print(dataset)
             an_result = self.anonymize(dataset)
             self.df = self.output_dataframe(an_result)
             metrics = self.risk_metrics(an_result)
