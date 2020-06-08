@@ -1,0 +1,9 @@
+,first_name,last_name,age,gender,zip_code,dob,trtmt_1,trtmt_2,trtmt_3
+0,martin,dupont,23,M,34500,1997-01-01,0,1,0
+1,leon,laurent,24,M,34530,1997-01-02,1,0,1
+2,lucie,marin,34,F,28670,1986-01-01,0,1,0
+3,marie,raymond,35,F,28671,1986-01-02,1,0,1
+4,leon,laurent,67,M,91200,1953-01-01,0,1,0
+5,lucas,pont,68,M,91220,1953-01-02,1,0,1
+6,leon,laurent,17,M,78210,2003-01-01,0,1,0
+7,lucas,pont,18,M,78200,2003-01-02,0,0,1
