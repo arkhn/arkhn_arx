@@ -1,0 +1,9 @@
+build/
+dist/
+venv/
+*egg-info/
+.DS_Store
+__pycache__/
+.idea/
+results/
+sample/
