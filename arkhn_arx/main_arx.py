@@ -152,7 +152,7 @@ class Anonymizer:
         for i in range(q - 2):
             interval_based.add_interval(bins[i], bins[i + 1], f"[{bins[i]}-{bins[i + 1]}[")
         interval_based.add_interval(bins[-1], df[att].max() + 1., f"[{bins[-1]}-{df[att].max() + 1}[")
-        interval_based.level(0).add_group(q // 2, f"low").add_group(q // 2, "high")
+        interval_based.level(0).add_group(q // 2, f"[{df[att].min()}-{bins[q//2-1]}[").add_group(q // 2, f"[{bins[q//2-1]}-{df[att].max()}[")
         interval_hierarchy = self.arxaas.hierarchy(interval_based, df[att].tolist())
 
         return interval_hierarchy
