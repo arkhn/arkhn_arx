@@ -25,6 +25,8 @@ class Anonymizer:
         config_params = config["anonymization"]
         mode = config_params["type"]
         config_attributes = config["attributes"]
+        for attr in config_attributes:
+            attr["anonymize"] = str(attr["anonymize"])
 
         # quantile to use for interval hierachy
         q = 4
@@ -36,14 +38,14 @@ class Anonymizer:
 
         if mode == 0:
             dataset = self.create_dataset(df)
-            dataset = self.define_attribute_type(dataset, config_attributes)
+            dataset, config_attributes = self.define_attribute_type(dataset, config_attributes)
             metrics = self.risk_metrics(dataset)["estimated_journalist_risk"]
 
             return df, metrics
 
         elif mode == 1:
             dataset = self.create_dataset(df)
-            dataset = self.define_attribute_type(dataset, config_attributes)
+            dataset, config_attributes  = self.define_attribute_type(dataset, config_attributes)
             metrics = self.risk_metrics(dataset)["estimated_journalist_risk"]
             an_df = self.pseudonymize_data(df, config_attributes)
 
@@ -52,7 +54,7 @@ class Anonymizer:
         elif mode == 2:
             df = self.clean_data(df, config_attributes)
             dataset = self.create_dataset(df)
-            dataset = self.define_attribute_type(dataset, config_attributes)
+            dataset, config_attributes = self.define_attribute_type(dataset, config_attributes)
             dataset = self.define_hierarchies(df, dataset,  config_attributes, q)
             an_result = self.anonymize(dataset, config_attributes, config_params)
             an_df = self.output_dataframe(an_result)
@@ -105,17 +107,21 @@ class Anonymizer:
         :return: dataset with set attributes
         """
         for att in config_attributes:
-            if att['att_type'] == "identifying":
-                dataset.set_attribute_type(AttributeType.IDENTIFYING, att["customName"])
-            elif att['att_type'] == "quasiidentifying":
-                dataset.set_attribute_type(AttributeType.QUASIIDENTIFYING, att["customName"])
-            elif att['att_type'] == "sensitive":
-                dataset.set_attribute_type(AttributeType.SENSITIVE, att["customName"])
-            elif att['att_type'] == "insensitive":
+            if att["anonymize"] == "False":
+                att["att_type"]="insensitive"
                 dataset.set_attribute_type(AttributeType.INSENSITIVE, att["customName"])
             else:
-                raise Exception("unknow attribute type")
-        return dataset
+                if att['att_type'] == "identifying":
+                    dataset.set_attribute_type(AttributeType.IDENTIFYING, att["customName"])
+                elif att['att_type'] == "quasiidentifying":
+                    dataset.set_attribute_type(AttributeType.QUASIIDENTIFYING, att["customName"])
+                elif att['att_type'] == "sensitive":
+                    dataset.set_attribute_type(AttributeType.SENSITIVE, att["customName"])
+                elif att['att_type'] == "insensitive":
+                    dataset.set_attribute_type(AttributeType.INSENSITIVE, att["customName"])
+                else:
+                    raise Exception("unknow attribute type")
+        return dataset, config_attributes
 
     def define_hierarchies(self, df, dataset, config_attributes, q):
         """
