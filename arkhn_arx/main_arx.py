@@ -139,7 +139,11 @@ class Anonymizer:
 
     def create_date_hierarchy(self,df, att):
         """"""
-        date_based = DateHierarchyBuilder("yyyy-MM-dd", DateHierarchyBuilder.Granularity.DECADE)
+        date_based = DateHierarchyBuilder("yyyy-MM-dd",
+                                          DateHierarchyBuilder.Granularity.MONTH_YEAR,
+                                          DateHierarchyBuilder.Granularity.YEAR,
+                                          DateHierarchyBuilder.Granularity.DECADE
+                                          )
         date_hierarchy = self.arxaas.hierarchy(date_based, df[att].tolist())
 
         return date_hierarchy
