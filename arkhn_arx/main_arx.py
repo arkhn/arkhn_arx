@@ -37,14 +37,14 @@ class Anonymizer:
         if mode == 0:
             dataset = self.create_dataset(df)
             dataset = self.define_attribute_type(dataset, config_attributes)
-            metrics = self.risk_metrics(dataset)
+            metrics = self.risk_metrics(dataset)["estimated_journalist_risk"]
 
             return df, metrics
 
         elif mode == 1:
             dataset = self.create_dataset(df)
             dataset = self.define_attribute_type(dataset, config_attributes)
-            metrics = self.risk_metrics(dataset)
+            metrics = self.risk_metrics(dataset)["estimated_journalist_risk"]
             an_df = self.pseudonymize_data(df, config_attributes)
 
             return an_df, metrics
@@ -56,7 +56,7 @@ class Anonymizer:
             dataset = self.define_hierarchies(df, dataset,  config_attributes, q)
             an_result = self.anonymize(dataset, config_attributes, config_params)
             an_df = self.output_dataframe(an_result)
-            metrics = self.risk_metrics(an_result)
+            metrics = self.risk_metrics(an_result)["estimated_journalist_risk"]
 
             return an_df, metrics
 
