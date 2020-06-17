@@ -1,6 +1,6 @@
-# pyarxaas
+# arkhn_arx
 
-arkhn_arx is a module for dataset pseudonymization or anonymization
+arkhn_arx is a module for dataset pseudonymization or anonymization which wraps pyarxaas
 
 ## Install
 
