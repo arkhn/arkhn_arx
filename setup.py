@@ -17,7 +17,7 @@ setup(
     name="arkhn_arx",
     packages=find_packages(),
     include_package_data=True,
-    version="0.0.7",
+    version="0.0.8",
     license="MIT License",
     description=" arkhn_arx is a tool to pseudonymize or anonymize datasets while evaluating reidentification risk metrics",
     long_description=long_description,
