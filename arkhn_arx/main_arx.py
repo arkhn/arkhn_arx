@@ -38,14 +38,16 @@ class Anonymizer:
 
         if mode == 0:
             dataset = self.create_dataset(df)
-            dataset, config_attributes = self.define_attribute_type(dataset, config_attributes)
-            metrics = self.risk_metrics(dataset)["estimated_journalist_risk"]
+            dataset, config_attributes = self.define_attribute_type(
+                dataset, config_attributes)
+            metrics = pd.Series([1.], name="estimated_journalist_risk")
 
             return df, metrics
 
         elif mode == 1:
             dataset = self.create_dataset(df)
-            dataset, config_attributes  = self.define_attribute_type(dataset, config_attributes)
+            dataset, config_attributes = self.define_attribute_type(
+                dataset, config_attributes)
             metrics = self.risk_metrics(dataset)["estimated_journalist_risk"]
             an_df = self.pseudonymize_data(df, config_attributes)
 
@@ -54,9 +56,12 @@ class Anonymizer:
         elif mode == 2:
             df = self.clean_data(df, config_attributes)
             dataset = self.create_dataset(df)
-            dataset, config_attributes = self.define_attribute_type(dataset, config_attributes)
-            dataset = self.define_hierarchies(df, dataset,  config_attributes, q)
-            an_result = self.anonymize(dataset, config_attributes, config_params)
+            dataset, config_attributes = self.define_attribute_type(
+                dataset, config_attributes)
+            dataset = self.define_hierarchies(
+                df, dataset,  config_attributes, q)
+            an_result = self.anonymize(
+                dataset, config_attributes, config_params)
             an_df = self.output_dataframe(an_result)
             metrics = self.risk_metrics(an_result)["estimated_journalist_risk"]
 
@@ -84,7 +89,8 @@ class Anonymizer:
                 if att['hierarchy_type'] == 'interval':
                     df[att["customName"]] = df[att["customName"]].astype(float)
                 elif att['hierarchy_type'] == 'date':
-                    df[att["customName"]] = pd.to_datetime(df[att["customName"]], yearfirst=True).astype(str)
+                    df[att["customName"]] = pd.to_datetime(
+                        df[att["customName"]], yearfirst=True).astype(str)
                 elif att['hierarchy_type'] == 'redaction' or att['hierarchy_type'] == 'order':
                     df[att["customName"]] = df[att["customName"]].astype(str)
         return df
@@ -108,17 +114,22 @@ class Anonymizer:
         """
         for att in config_attributes:
             if att["anonymize"] == "False":
-                att["att_type"]="insensitive"
-                dataset.set_attribute_type(AttributeType.INSENSITIVE, att["customName"])
+                att["att_type"] = "insensitive"
+                dataset.set_attribute_type(
+                    AttributeType.INSENSITIVE, att["customName"])
             else:
                 if att['att_type'] == "identifying":
-                    dataset.set_attribute_type(AttributeType.IDENTIFYING, att["customName"])
+                    dataset.set_attribute_type(
+                        AttributeType.IDENTIFYING, att["customName"])
                 elif att['att_type'] == "quasiidentifying":
-                    dataset.set_attribute_type(AttributeType.QUASIIDENTIFYING, att["customName"])
+                    dataset.set_attribute_type(
+                        AttributeType.QUASIIDENTIFYING, att["customName"])
                 elif att['att_type'] == "sensitive":
-                    dataset.set_attribute_type(AttributeType.SENSITIVE, att["customName"])
+                    dataset.set_attribute_type(
+                        AttributeType.SENSITIVE, att["customName"])
                 elif att['att_type'] == "insensitive":
-                    dataset.set_attribute_type(AttributeType.INSENSITIVE, att["customName"])
+                    dataset.set_attribute_type(
+                        AttributeType.INSENSITIVE, att["customName"])
                 else:
                     raise Exception("unknow attribute type")
         return dataset, config_attributes
@@ -132,18 +143,21 @@ class Anonymizer:
         for att in config_attributes:
             if att["att_type"] == 'quasiidentifying':
                 if att["hierarchy_type"] == 'date':
-                    hierarchies[att["customName"]] = self.create_date_hierarchy(df, att["customName"])
+                    hierarchies[att["customName"]] = self.create_date_hierarchy(
+                        df, att["customName"])
                     pass
                 elif att["hierarchy_type"] == "interval":
-                    hierarchies[att["customName"]] = self.create_interval_hierarchy(df, att["customName"], q)
+                    hierarchies[att["customName"]] = self.create_interval_hierarchy(
+                        df, att["customName"], q)
                 elif att["hierarchy_type"] == "redaction":
-                    hierarchies[att["customName"]] = self.create_redaction_hierarchy(df, att["customName"])
+                    hierarchies[att["customName"]] = self.create_redaction_hierarchy(
+                        df, att["customName"])
                 else:
                     raise Exception("unknow hierarchy type")
         dataset.set_hierarchies(hierarchies)
         return dataset
 
-    def create_date_hierarchy(self,df, att):
+    def create_date_hierarchy(self, df, att):
         """"""
         date_based = DateHierarchyBuilder("yyyy-MM-dd",
                                           DateHierarchyBuilder.Granularity.MONTH_YEAR,
@@ -158,18 +172,24 @@ class Anonymizer:
         """"""
         bins = df[att].quantile([x / float(q) for x in range(1, q)]).tolist()
         interval_based = IntervalHierarchyBuilder()
-        interval_based.add_interval(df[att].min(), bins[0], f"[{df[att].min()}-{bins[0]}[")
+        interval_based.add_interval(
+            df[att].min(), bins[0], f"[{df[att].min()}-{bins[0]}[")
         for i in range(q - 2):
-            interval_based.add_interval(bins[i], bins[i + 1], f"[{bins[i]}-{bins[i + 1]}[")
-        interval_based.add_interval(bins[-1], df[att].max() + 1., f"[{bins[-1]}-{df[att].max() + 1}[")
-        interval_based.level(0).add_group(q // 2, f"[{df[att].min()}-{bins[q//2-1]}[").add_group(q // 2, f"[{bins[q//2-1]}-{df[att].max()}[")
-        interval_hierarchy = self.arxaas.hierarchy(interval_based, df[att].tolist())
+            interval_based.add_interval(
+                bins[i], bins[i + 1], f"[{bins[i]}-{bins[i + 1]}[")
+        interval_based.add_interval(
+            bins[-1], df[att].max() + 1., f"[{bins[-1]}-{df[att].max() + 1}[")
+        interval_based.level(0).add_group(
+            q // 2, f"[{df[att].min()}-{bins[q//2-1]}[").add_group(q // 2, f"[{bins[q//2-1]}-{df[att].max()}[")
+        interval_hierarchy = self.arxaas.hierarchy(
+            interval_based, df[att].tolist())
 
         return interval_hierarchy
 
     def create_redaction_hierarchy(self, df, att):
         redaction_based = RedactionHierarchyBuilder()
-        redaction_hierarchy = self.arxaas.hierarchy(redaction_based, df[att].tolist())
+        redaction_hierarchy = self.arxaas.hierarchy(
+            redaction_based, df[att].tolist())
 
         return redaction_hierarchy
 
@@ -184,7 +204,8 @@ class Anonymizer:
         ldiv = []
         for att in config_attributes:
             if att["att_type"] == "sensitive":
-                ldiv.append(LDiversityDistinct(config_params["l"], att["customName"]))
+                ldiv.append(LDiversityDistinct(
+                    config_params["l"], att["customName"]))
         anonymize_result = self.arxaas.anonymize(dataset, [kanon] + ldiv, 1)
 
         return anonymize_result
